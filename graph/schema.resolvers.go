@@ -14,8 +14,6 @@ import (
 	"github.com/MosesAliev/comment-service/graph/model"
 )
 
-// User is the resolver for the user field.
-
 // CreateComment is the resolver for the createComment field.
 func (r *mutationResolver) CreateComment(ctx context.Context, input model.NewComment) (*model.Comment, error) {
 	randNumber, _ := rand.Int(rand.Reader, big.NewInt(100))
@@ -60,18 +58,16 @@ func (r *queryResolver) Posts(ctx context.Context) ([]*model.Post, error) {
 
 // CommentsByID is the resolver for the commentsById field.
 func (r *queryResolver) CommentsByID(ctx context.Context, id string) ([]*model.Comment, error) {
-	var comments []*model.Comment
+	r.commentsById = nil
 	for _, comment := range r.comments {
-		log.Println(comment.ID)
-		if comment.PostID == id {
-			comments = append(comments, comment)
+		if comment.Post.ID == id {
+			log.Println(comment.ID)
+			r.commentsById = append(r.commentsById, comment)
 		}
 
 	}
-	return comments, nil
+	return r.commentsById, nil
 }
-
-// Comment returns CommentResolver implementation.
 
 // Mutation returns MutationResolver implementation.
 func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
@@ -88,9 +84,3 @@ type queryResolver struct{ *Resolver }
 //   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
 //     it when you're done.
 //   - You have helper methods in this file. Move them out to keep these resolver files clean.
-func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewComment) (*model.Comment, error) {
-	panic(fmt.Errorf("not implemented: CreateTodo - createTodo"))
-}
-func (r *queryResolver) Todos(ctx context.Context) ([]*model.Comment, error) {
-	panic(fmt.Errorf("not implemented: Todos - todos"))
-}

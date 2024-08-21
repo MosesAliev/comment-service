@@ -39,7 +39,6 @@ type Config struct {
 }
 
 type ResolverRoot interface {
-	
 	Mutation() MutationResolver
 	Query() QueryResolver
 }
@@ -77,8 +76,10 @@ type ComplexityRoot struct {
 	}
 }
 
-
-
+type CommentResolver interface {
+	User(ctx context.Context, obj *model.Comment) (*model.User, error)
+	Post(ctx context.Context, obj *model.Comment) (*model.Post, error)
+}
 type MutationResolver interface {
 	CreateComment(ctx context.Context, input model.NewComment) (*model.Comment, error)
 	CreatePost(ctx context.Context, input model.NewPost) (*model.Post, error)

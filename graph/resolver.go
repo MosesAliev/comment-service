@@ -6,6 +6,7 @@ import "github.com/MosesAliev/comment-service/graph/model"
 //
 // It serves as dependency injection for your app, add any dependencies you require here.
 type Resolver struct {
-	comments []*model.Comment
-	posts    []*model.Post
+	comments     []*model.Comment
+	posts        []*model.Post
+	commentsById []*model.Comment
 }
