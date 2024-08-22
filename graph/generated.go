@@ -60,8 +60,9 @@ type ComplexityRoot struct {
 	}
 
 	Post struct {
-		ID   func(childComplexity int) int
-		Text func(childComplexity int) int
+		CommentAllowed func(childComplexity int) int
+		ID             func(childComplexity int) int
+		Text           func(childComplexity int) int
 	}
 
 	Query struct {
@@ -160,6 +161,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.CreatePost(childComplexity, args["input"].(model.NewPost)), true
+
+	case "Post.CommentAllowed":
+		if e.complexity.Post.CommentAllowed == nil {
+			break
+		}
+
+		return e.complexity.Post.CommentAllowed(childComplexity), true
 
 	case "Post.id":
 		if e.complexity.Post.ID == nil {
@@ -620,6 +628,8 @@ func (ec *executionContext) fieldContext_Comment_post(_ context.Context, field g
 				return ec.fieldContext_Post_id(ctx, field)
 			case "text":
 				return ec.fieldContext_Post_text(ctx, field)
+			case "CommentAllowed":
+				return ec.fieldContext_Post_CommentAllowed(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Post", field.Name)
 		},
@@ -735,6 +745,8 @@ func (ec *executionContext) fieldContext_Mutation_createPost(ctx context.Context
 				return ec.fieldContext_Post_id(ctx, field)
 			case "text":
 				return ec.fieldContext_Post_text(ctx, field)
+			case "CommentAllowed":
+				return ec.fieldContext_Post_CommentAllowed(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Post", field.Name)
 		},
@@ -841,6 +853,50 @@ func (ec *executionContext) fieldContext_Post_text(_ context.Context, field grap
 	return fc, nil
 }
 
+func (ec *executionContext) _Post_CommentAllowed(ctx context.Context, field graphql.CollectedField, obj *model.Post) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Post_CommentAllowed(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CommentAllowed, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Post_CommentAllowed(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Post",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_comments(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_comments(ctx, field)
 	if err != nil {
@@ -938,6 +994,8 @@ func (ec *executionContext) fieldContext_Query_posts(_ context.Context, field gr
 				return ec.fieldContext_Post_id(ctx, field)
 			case "text":
 				return ec.fieldContext_Post_text(ctx, field)
+			case "CommentAllowed":
+				return ec.fieldContext_Post_CommentAllowed(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Post", field.Name)
 		},
@@ -3048,7 +3106,7 @@ func (ec *executionContext) unmarshalInputNewPost(ctx context.Context, obj inter
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"text"}
+	fieldsInOrder := [...]string{"text", "CommentAllowed"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -3062,6 +3120,13 @@ func (ec *executionContext) unmarshalInputNewPost(ctx context.Context, obj inter
 				return it, err
 			}
 			it.Text = data
+		case "CommentAllowed":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("CommentAllowed"))
+			data, err := ec.unmarshalNBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CommentAllowed = data
 		}
 	}
 
@@ -3266,6 +3331,11 @@ func (ec *executionContext) _Post(ctx context.Context, sel ast.SelectionSet, obj
 			}
 		case "text":
 			out.Values[i] = ec._Post_text(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "CommentAllowed":
+			out.Values[i] = ec._Post_CommentAllowed(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}

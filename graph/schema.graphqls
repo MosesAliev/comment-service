@@ -12,6 +12,7 @@ type Comment {
 type Post {
   id: ID!
   text: String!
+  CommentAllowed: Boolean!
 }
 
 type User {
@@ -33,7 +34,7 @@ input NewComment {
 
 input NewPost {
   text: String!
-  
+  CommentAllowed: Boolean!
 }
 
 type Mutation {

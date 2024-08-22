@@ -12,12 +12,14 @@ type NewComment struct {
 }
 
 type NewPost struct {
-	Text string `json:"text"`
+	Text           string `json:"text"`
+	CommentAllowed bool   `json:"CommentAllowed"`
 }
 
 type Post struct {
-	ID   string `json:"id"`
-	Text string `json:"text"`
+	ID             string `json:"id"`
+	Text           string `json:"text"`
+	CommentAllowed bool   `json:"CommentAllowed"`
 }
 
 type Query struct {

@@ -17,6 +17,23 @@ import (
 // CreateComment is the resolver for the createComment field.
 func (r *mutationResolver) CreateComment(ctx context.Context, input model.NewComment) (*model.Comment, error) {
 	randNumber, _ := rand.Int(rand.Reader, big.NewInt(100))
+	for _, post := range r.posts {
+		if post.ID == input.PostID {
+			if !post.CommentAllowed {
+				var err error
+				comment := &model.Comment{
+					Text: "NotAllowed",
+					ID:   "",
+					User: &model.User{ID: input.UserID, Name: "user " + input.UserID},
+					Post: &model.Post{ID: input.PostID},
+				}
+				return comment, err
+			}
+
+		}
+
+	}
+
 	comment := &model.Comment{
 		Text: input.Text,
 		ID:   fmt.Sprintf("T%d", randNumber),
@@ -31,8 +48,9 @@ func (r *mutationResolver) CreateComment(ctx context.Context, input model.NewCom
 func (r *mutationResolver) CreatePost(ctx context.Context, input model.NewPost) (*model.Post, error) {
 	randNumber, _ := rand.Int(rand.Reader, big.NewInt(100))
 	post := &model.Post{
-		Text: input.Text,
-		ID:   fmt.Sprintf("T%d", randNumber),
+		Text:           input.Text,
+		ID:             fmt.Sprintf("T%d", randNumber),
+		CommentAllowed: input.CommentAllowed,
 	}
 	r.posts = append(r.posts, post)
 	return post, nil
@@ -69,6 +87,8 @@ func (r *queryResolver) CommentsByID(ctx context.Context, id string) ([]*model.C
 	return r.commentsById, nil
 }
 
+// Comment returns CommentResolver implementation.
+
 // Mutation returns MutationResolver implementation.
 func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
 
@@ -77,10 +97,3 @@ func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
-
-// !!! WARNING !!!
-// The code below was going to be deleted when updating resolvers. It has been copied here so you have
-// one last chance to move it out of harms way if you want. There are two reasons this happens:
-//   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
-//     it when you're done.
-//   - You have helper methods in this file. Move them out to keep these resolver files clean.
