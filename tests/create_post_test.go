@@ -1,6 +1,7 @@
 package tests
 
 import (
+	"log"
 	"testing"
 
 	"github.com/99designs/gqlgen/client"
@@ -34,6 +35,8 @@ func TestCreatePost(t *testing.T) {
 			}`,
 			&resp,
 		)
+
+		log.Println(resp.CreatePost.ID)
 
 		assert.Equal(t, "Text", resp.CreatePost.Text)
 	})
